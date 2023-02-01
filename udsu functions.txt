@@ -1,0 +1,143 @@
+
+  LGT8xp uDSU library
+
+
+                    Op-Code
+Category	    IR[7:0]		function/description
+--------	  ----------------   -------------------------
+ADD/SUB  
+		  0 0 S  0  0 1 0 1   DA = DX + DY
+		  0 0 S  0  0 0 0 1   DA = DX – DY
+		  0 0 0  1  1 1 0 1   DA = DY
+		  0 0 S  1  1 0 0 1   DA = -DY
+		  0 0 S  1  0 1 1 1   DA = DA + DY
+		  0 0 S  1  0 0 1 1   DA = DA – DY
+MAC/MSC                       
+		  0 1 S1 S0 0 1 0 0   DA = DX * DY
+		  0 1 S1 S0 0 0 0 0   DA = -DX * DY
+		  0 1 S1 S0 1 1 0 0   DA = (DX * DY) >> 1
+		  0 1 S1 S0 1 0 0 0   DA = (-DX * DY) >> 1
+		  0 1 S1 S0 0 1 1 S   DA = DA + DX * DY
+		  0 1 S1 S0 1 1 1 S   DA = (DA + DX * DY) >> 1
+		  0 1 S1 S0 0 0 1 S   DA = DA – DX * DY
+		  0 1 S1 S0 1 0 1 S   DA = (DA – DX * DY) >> 1
+MISC                         
+		  1 0 0  0  0 1 0 S   DA = NEG(DA)
+		  1 0 0  0  1 0 0 S   DA = DX^2
+		  1 0 0  0  1 0 1 S   DA = DY^2
+		  1 0 1  0  0 0 0 S   DA = ABS(DA)
+		  1 0 1  1  0 0 0 0   DA = DA/DY
+		  1 0 1  1  0 0 0 1   DA = DA/DY, DY = DA % DY
+SHIFT    
+		  1 1 0 0 N3 N2 N1 N0 DA = DA << N
+		  1 1 S 1 N3 N2 N1 N0 DA = DA >> N 
+
+1. S indicates whether the operation is a signed or unsigned
+2. S1 indicates if DX is signed, S0 indicates if DY is signed
+3. N3-N0 is a four-bit shift number, which can shift up to 15-bit shift operation
+
+                                                          op-code
+Function Name           Math/Description               Name    IR[7:0]             
+-------------------   -----------------------------  --------------
+dsu_init(dsu_mm)     	enables uDSC, set memory mode
+dsu_da()  		return DA
+dsu_dx()  		return DX
+dsu_dy()  		return DY
+dsu_xadd(dx,dy)        DA = DX + DY                     XADD   	0x05
+dsu_xads(dx,dy)        DA = DX + DY with signed         XADS   	0x25
+dsu_xsub(dx,dy)        DA = DX - DY                     XSUB   	0x01 
+dsu_xsbs(dx,dy)        DA = DX - DY with signed         XSBS   	0x21
+dsu_aday(da,dy)        DA = DA + DY                     ADAY   	0x17
+dsu_adays(da,dy)       DA = DA + DY with signed         ADAYS  	0x37
+dsu_sbay(da,dy)        DA = DA - DY                     SBAY   	0x13
+dsu_sbays(da,dy)       DA = DA - DY with signed         SBAYS  	0x33
+dsu_xmuluu(dx,dy)      DA = (u)DX * (u)DY               XMULUU  0x44   
+dsu_xmulsu(dx,dy)      DA = (u)DX * (s)DY               XMULUS  0x54   
+dsu_xmulus(dx,dy)      DA = (s)DX * (u)DY               XMULSU  0x64   
+dsu_xmulss(dx,dy)      DA = (s)DX * (s)DY               XMULSS  0x74  
+ 
+dsu_xmacuu0(dx,dy)     DA = DA + [(u)DX * (u)DY]       XMACUU 	0x46		 
+dsu_xmacuu1(da,dx,dy)                                       	  		
+dsu_xmacus0(dx,dy)     DA = DA + [(s)DX * (u)DY]       XMACUS 	0x56	
+dsu_xmacus1(da,dx,dy)                                          		
+dsu_xmacsu0(dx,dy)     DA = DA + [(u)DX * (s)DY]       XMACSU  0x66
+dsu_xmacsu1(da,dx,dy)                                    		
+dsu_xmacss0(dx,dy)     DA = DA + [(s)DX * (s)DY]       XMACSS  0x76    
+dsu_xmacss1(da,dx,dy)                                           		     
+dsu_smacuu0(dx,dy)     DA = DA + [(u)DX * (u)DY]       SMACUU  0x47       
+dsu_smacuu1(da,dx,dy)                                           		      
+dsu_smacus0(dx,dy)     DA = DA + [(s)DX * (u)DY]       SMACUS  0x57           
+dsu_smacus1(da,dx,dy)                                    		
+dsu_smacsu0(dx,dy)     DA = DA + [(u)DX * (s)DY]       SMACSU  0x67  
+dsu_smacsu1(da,dx,dy)                                      
+dsu_smacss0(dx,dy)	 DA = DA + [(s)DX * (s)DY]     SMACSS  0x77 
+dsu_smacss1(da,dx,dy)
+dsu_xmscuu0(dx,dy)     DA = DA - [(u)DX * (u)DY]       XMSCUU  0x42
+dsu_xmscuu1(da,dx,dy)                                    
+dsu_xmscus0(dx,dy)     DA = DA - [(s)DX * (u)DY]       XMSCUS  0x52
+dsu_xmscus1(da,dx,dy)                                    
+dsu_xmscsu0(dx,dy)     DA = DA - [(u)DX * (s)DY]       XMSCSU  0x62
+dsu_xmscsu1(da,dx,dy)                                   
+dsu_xmscss0(dx,dy)     DA = DA - [(s)DX * (s)DY]       XMSCSS  0x72
+dsu_xmscss1(da,dx,dy)                                    
+dsu_smscuu0(dx,dy)     DA = DA - [(u)DX * (u)DY]       SMSCUU  0x43
+dsu_smscuu1(da,dx,dy)                                  
+dsu_smscus0(dx,dy)     DA = DA - [(s)DX * (u)DY]       SMSCUS  0x53
+dsu_smscus1(da,dx,dy)                                  
+dsu_smscsu0(dx,dy)     DA = DA - [(u)DX * (s)DY]       SMSCSU  0x63
+dsu_smscsu1(da,dx,dy)                                  
+dsu_smscss0(dx,dy)     DA = DA - [(s)DX * (s)DY]       SMSCSS  0x73
+dsu_smscss1(da,dx,dy) 
+
+dsu_usqx0(dx)		DA = DX^2               	USQX  0x88	
+dsu_ssqx0(dx)		DA = DX^2 			SSQX  0x89	
+dsu_usqy0(dy)		DA = DY^2               	USQY  0x8a	
+dsu_ssqy0(dy)		DA = DY^2 			SSQY  0x8b	
+dsu_usqx1(dx)		DX^2                    	USQX  0x88   
+dsu_ssqx1(dx)		DX^2 				SSQX  0x89   
+dsu_usqy1(dy)		DY^2                    	USQY  0x8a   
+dsu_ssqy1(dy)		DY^2 				SSQY  0x8b   
+dsu_uneg0()		DA = NEG(DA)			NEGA  0x84
+dsu_uneg1(da)		DA = NEG(DA)              	NEGA  0x84
+dsu_uneg2()		DA = NEG(DA)      		NEGA  0x84    
+dsu_uneg3(da)		DA = NEG(DA)               	NEGA  0x84        
+dsu_sneg0()		DA = NEG(DA)			NEGAS 0x85
+dsu_sneg1(da)		DA = NEG(DA)          		NEGAS 0x85
+dsu_sneg2()		DA = NEG(DA)      		NEGAS 0x85  
+dsu_sneg3(da)		DA = NEG(DA)        		NEGAS 0x85
+dsu_abs0()     		DA = ABS(DA)    		ABSA  0xa0    
+dsu_abs1(da)		DA = ABS(DA)    		ABSA  0xa0   
+dsu_abs2()		DA = ABS(DA)         		ABSA  0xa0
+dsu_abs3(da)		DA = ABS(DA)    		ABSA  0xa0  
+dsu_clr()		DA = 0   			CLRA  0x80	       
+dsu_div0()		DA = DA/DY                 	XDIVA 0xb0 
+dsu_div1(da,dy)		DA = DA/DY; DY = DA % DY        XDIVR 0xb1 
+dsu_ashl0(shn)		DA = DA << SHN    		ASLA  0xc0
+dsu_ashl1(da,shn)	DA = DA << SHN  		ASLA  0xc0
+dsu_ashr0(shn)		DA = DA >> SHN  		ASRA  0xd0
+dsu_ashr1(da,shn)	DA = DA >> SHN  		ASRA  0xd0
+dsu_ashr2(shn)		DA = DA >> SHN    		ASRAS 0xf0
+dsu_ashr3(da,shn)	DA = DA >> SHN  		ASRAS 0xf0
+dsu_fxmnlss(dx,dy) 	-((s)DX * (s)DY) >> 1  		FXMNLSS 0x78
+dsu_fxmnlus(dx,dy) 	-((s)DX * (u)DY) >> 1  		FXMNLUS 0x58
+dsu_fxmnlsu(dx,dy) 	-((u)DX * (s)DY) >> 1 		FXMNLSU 0x68
+dsu_fxmnluu(dx,dy) 	-((u)DX * (u)DY)) >> 1  	FXMNLUU 0x48
+dsu_fxmulss(dx,dy) 	((s)DX * (s)DY) >> 1  		FXMULSS 0x7c
+dsu_fxmulus(dx,dy) 	((s)DX * (u)DY) >> 1  		FXMULUS 0x5c
+dsu_fxmulsu(dx,dy) 	((u)DX * (s)DY) >> 1  		FXMULSU 0x6c
+dsu_fxmuluu(dx,dy) 	((u)DX * (u)DY) >> 1 		FXMULUU 0x4c
+dsu_xmnlss(dx,dy)  	 -((s)DX * (s)DY) 		XMNLSS  0x70
+dsu_xmnlus(dx,dy)  	 -((s)DX * (u)DY)         	XMNLUS  0x50
+dsu_xmnlsu(dx,dy)  	 -((u)DX * (s)DY)         	XMNLSU  0x60
+dsu_xmnluu(dx,dy)  	 -((u)DX * (u)DY)         	XMNLUU  0x40
+dsu_mvnys() 		DA = -DY			MVNYS   0x39
+dsu_mvny()  		DA = -DY               		MVNY    0x19
+dsu_mvy()   		DA = DY                		MVY     0x1d
+dsu_xmuluu(dx,dy)       DA = (u)DX * (u)DY 		XMULUU  0x44   
+dsu_xmulsu(dx,dy)       DA = (u)DX * (s)DY 		XMULUS  0x54   
+dsu_xmulus(dx,dy)       DA = (s)DX * (u)DY 		XMULSU  0x64   
+dsu_xmulss(dx,dy)       DA = (s)DX * (s)DY 		XMULSS  0x74   
+                                                          
+dsu_fmacss(dx,dy,cnt) for i=cnt to 0, da = da + dx_addr[i] * dy_addr[i]
+
+
