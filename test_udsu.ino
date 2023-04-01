@@ -4,6 +4,8 @@
  */ 
 #include <Arduino.h>
 #include "udsu.h"
+#include <avr/io.h>
+
 
 int array_dx[] = {
 	8, 1000, -20, 44, 80, -100, 107, 20,
